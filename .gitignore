@@ -1,0 +1,6 @@
+auto/
+venv/
+__pycache__/
+.env
+billy.py
+ets2.py
