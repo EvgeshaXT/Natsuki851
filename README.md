@@ -15,12 +15,12 @@
 ```venv/bin/activate```
 
 6. Установка зависимостей
-``'pip install -r requirements.txt'``
+```pip install -r requirements.txt```
 
 7. Настройка .env файла
 
 Создайте .env файл
-``'touch .env'``
+```touch .env```
 
 Отредактируй .env файл, добавив свой TOKEN
 ```TOKEN='ваш_токен_здесь'```
