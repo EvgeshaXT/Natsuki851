@@ -109,4 +109,5 @@ class MyCog(commands.Cog):
         await inter.response.send_message("Всё работает!")
 
 def setup(bot):
-    bot.add_cog(MyCog(bot))```
+    bot.add_cog(MyCog(bot))
+```
