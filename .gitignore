@@ -1,6 +1,7 @@
 auto/
 venv/
 __pycache__/
+# sent_files.txt:
+data/
 .env
 billy.py
-ets2.py
