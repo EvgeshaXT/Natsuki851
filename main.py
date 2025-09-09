@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 # Функция загрузки когов
 def load_cogs(bot):
     """Загружает все коги из папки cogs, кроме указанных в IGNORE_FILES из .env"""
-    load_dotenv()
-
     # Формат: IGNORE_FILES = 'file1.py, file2.py, ...'
     ignore_str = os.getenv('IGNORE_FILES', '')
     ignore = [cog for cog in ignore_str.split(', ')] if ignore_str else []
@@ -166,7 +164,9 @@ def main():
         if isinstance(error, commands.MissingPermissions):
             await ctx.reply("> У вас недостаточно прав для выполнения этой команды ❌")
         elif isinstance(error, commands.CommandNotFound):
-            await ctx.reply("> Указанная команда не найдена ❌")
+            # Выбирайте из личных предпочтений:
+            # await ctx.reply("> Указанная команда не найдена ❌")
+            pass
         else:
             print(f"Произошла ошибка: {error}")
     

@@ -11,7 +11,7 @@ class ETS2Cog(commands.Cog):
         # ID канала для отправки новых скриншотов
         self.channel_id = int(os.getenv('CHANNEL_ID'))
         # Переменная для управления отправкой существующих файлов при запуске модуля
-        self.send_existing_on_startup = os.getenv('SEND_EXISTING', 'False').lower() == 'true'
+        self.send_existing_on_startup = os.getenv('SEND_EXISTING', 'False').lower() == 'true' # Меняйте значение только в .env!
         # Файл для хранения списка уже отправленных скриншотов
         self.sent_files = 'data/sent_files.txt'
         # Множество для хранения путей отправленных файлов
@@ -24,36 +24,46 @@ class ETS2Cog(commands.Cog):
             self.mark_existing_files() # Помечаем существующие файлы как отправленные (self.send_existing_on_startup)
         self.check_files.start() # Запуск работы модуля
 
+    def cog_unload(self):
+        """Принудительная остановка задачи при перезагрузке или выгрузки кога"""
+        self.check_files.cancel()
+
     def create_sent_files(self):
         """Создаёт файл data/sent_files.txt (далее --> "файл для хранения") в случае, если он ещё не создан"""
         try:
-            # Создание папки
+            # Создание папки, если она ещё не создана
             if not os.path.exists('data'):
                 os.makedirs('data')
                 print("✅ cogs/ets2.py: Была создана директория: ./data/")
-            # Создание файла
+
+            # Создание файла data/sent_files.txt
             if not os.path.exists(self.sent_files):
                 with open(self.sent_files, 'w'):
                     pass
                 print(f"✅ cogs/ets2.py: Был создан файл: {self.sent_files}")
+
         except Exception as error:
             print(f"❌ cogs/ets2.py: Ошибка при создании файла {self.sent_files}: {error}")
 
     def load_sent_files(self):
         """Загружает список уже отправленных файлов из файла для хранения"""
         try:
-            if os.path.exists(self.sent_files): # Проверяет, существует ли файл для хранения
-                with open(self.sent_files, 'r') as files: # Открывает файл в режиме чтения
-                    self.set_sent_files = set(line.strip() for line in files) # Создаёт множество, .strip очищает наш файл для хранения от \n
+            with open(self.sent_files, 'r') as files: # Открывает файл в режиме чтения
+                self.set_sent_files = set(line.strip() for line in files) # Создаёт множество, .strip очищает наше множество от \n
         except Exception as error:
             print(f"❌ cogs/ets2.py: Ошибка при загрузке отправленных файлов: {error}")          
 
     def save_sent_files(self):
         """Сохраняет список отправленных скриншотов в файл для хранения"""
         try:
+            # Проверяет наличие файла. Если он отсутствует, создаёт его вновь
+            if not os.path.exists(self.sent_files):
+                return self.create_sent_files()
+            
             with open(self.sent_files, 'w') as files: # Открывает файл в режиме редактирования и переписывает его
                 for file in self.set_sent_files:
                     files.write(f"{file}\n")
+
         except Exception as error:
             print(f"❌ cogs/ets2.py: Ошибка при сохранении отправленных файлов: {error}")
 
@@ -65,7 +75,7 @@ class ETS2Cog(commands.Cog):
 
             # Добавляем их в множество отправленных файлов
             for file_path in existing_files:
-                self.set_sent_files.add(file_path) # сразу аккуратноаАВАВаываыпыапфпыпыпы
+                self.set_sent_files.add(file_path)
 
             # Сохраняем обновлённый список
             self.save_sent_files()
@@ -82,13 +92,23 @@ class ETS2Cog(commands.Cog):
 
             # Получаем все файлы .png в папке скриншотов
             all_files.extend(glob.glob(os.path.join(self.screenshot_path, '*.png')))
-            # Фильтрируем только новые файлы
-            new_files = [file for file in all_files if file not in self.set_sent_files]
+
+            # Фильтрируем только новые файлы с проверкой размера
+            for file in all_files:
+                if file not in self.set_sent_files:
+                    try:
+                        # Проверяем размер файла (больше 1 КБ) на случай, если файл ещё не успел полностью создаться
+                        if os.path.getsize(file) > 1024:
+                            new_files.append(file)
+
+                    except OSError as error:
+                        print("❌ cogs/ets2.py: Ошибка при получении размера файла: {error}")
 
             return new_files
         
         except Exception as error:
             print(f"❌ cogs/ets2.py: Ошибка при поиске новых скриншотов: {error}")
+            return []
 
     @tasks.loop(seconds=10)
     async def check_files(self):
