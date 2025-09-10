@@ -156,7 +156,7 @@ def main():
 
     @bot.event
     async def on_ready():
-        print(f"✅ Bot {bot.user.name} is ready to work!")
+        print(f"✅ Бот {bot.user.name} готов к работе!")
 
     # Обработчик ошибок
     @bot.event
