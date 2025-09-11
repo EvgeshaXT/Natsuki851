@@ -45,7 +45,7 @@ async def load_cog(bot, ctx, cog_name: str):
     try:
         bot.load_extension(f'cogs.{cog_name}')
         if "не загружен. Загружаю... ⚙️" in last_bot_msg.content:
-            await last_bot_msg.reply(f"> Ког **{cog_name}** был успешно перезагружен ✅")
+            await last_bot_msg.reply(f"> Ког **{cog_name}** был успешно загружен ✅")
         else:
             await ctx.reply(f"> Ког **{cog_name}** был успешно загружен ✅")
         print(f"✅ Ког {cog_name} загружен по команде")

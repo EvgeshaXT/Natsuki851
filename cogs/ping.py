@@ -10,7 +10,9 @@ class PingCog(commands.Cog):
     # Событие при получении сообщения
     async def on_message(self, message):
         if message.content == f"<@{self.bot.user.id}>":
-            await message.reply("Я тут.")
+            # Бот "печатает" для имитации человечности
+            async with message.channel.typing():
+                await message.reply("Я тут.")
             return
 
 def setup(bot):
